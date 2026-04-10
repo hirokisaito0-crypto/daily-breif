@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>本日のピックアップ（上位3件）— サンプル</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Segoe UI"', 'system-ui', 'sans-serif'],
+            jp: ['"Hiragino Sans"', '"Hiragino Kaku Gothic ProN"', 'Meiryo', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+  <!--
+    差し込み用変数（自動生成向け）
+    {{date_iso}} {{date_display_ja}}
+    {{count_red}} {{count_yellow}} {{count_green}}
+    ヘッダ用（優先度ごとのタイトル。複数件は行を繰り返し）
+    {{priority_immediate_titles}} {{priority_review_titles}} {{priority_reference_titles}}
+    （または各タイトルを改行区切り1変数でも可）
+    各 n = 1..3:
+    {{item<n>_priority}}  immediate（即共有）| review（要確認）| reference（参考）
+    {{item<n>_title}} {{item<n>_summary}}
+    {{item<n>_source_name}} {{item<n>_source_url}}
+    {{item<n>_background}} {{item<n>_published_date}}
+    {{item<n>_priority_reason}}
+    {{item<n>_client_share}}  recommended（推奨）| not_recommended（非推奨）| judgment（要判断）
+    {{item<n>_share_record}}  pending（未対応）| done_shared（共有済）| done_skipped（共有見送り）
+    {{item<n>_internal_memo}}  （空なら非表示）
+    月次集計（「共有した」のみ、優先度別件数。行ループまたは JSON）
+    {{#each monthly_share_stats}} {{year_month}} {{shared_immediate}} {{shared_review}} {{shared_reference}} {{/each}}
+    未対応バックログ: {{pending_count}}
+    各行 {{pending_item_url}} {{pending_item_date}} {{pending_priority}} {{pending_title}}
+  -->
+</head>
+<body class="min-h-screen bg-slate-100 font-sans text-slate-900 antialiased">
+  <!-- メールクライアントでは Tailwind が効かない場合があります。配信時は Web 掲載リンクまたはインライン化をご検討ください。 -->
+  <div class="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8">
+    <header class="mb-10 border-b border-slate-200 pb-8">
+      <p class="font-jp text-xs font-medium tracking-wide text-slate-500">UK・欧州 · 日系金融機関向け</p>
+      <h1 class="mt-2 font-jp text-2xl font-bold leading-tight text-slate-900 sm:text-3xl">
+        本日のピックアップ（上位3件）
+      </h1>
+      <div class="mt-4 space-y-3">
+        <div class="flex flex-wrap items-center gap-3">
+          <time datetime="2026-04-08" class="rounded-lg bg-white px-3 py-1.5 text-sm font-semibold text-slate-800 shadow-sm ring-1 ring-slate-200">
+            2026年4月8日（水）
+          </time>
+          <span class="font-jp text-sm text-slate-500">優先度内訳（タイトル）</span>
+        </div>
+
+        <a
+          href="#pending-backlog"
+          class="font-jp group flex flex-col gap-2 rounded-xl bg-white p-4 shadow-sm ring-2 ring-amber-200 transition hover:bg-amber-50/50 hover:ring-amber-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
+        >
+          <div class="flex items-center gap-3">
+            <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-amber-100 text-lg font-bold text-amber-900 ring-1 ring-amber-200" aria-hidden="true">!</span>
+            <div>
+              <p class="text-sm font-semibold text-slate-800">共有の記録が未対応の残件</p>
+              <p class="mt-0.5 text-xs text-slate-500">クリック（または Enter）で過去分の一覧へ移動します</p>
+            </div>
+          </div>
+          <div class="flex shrink-0 items-baseline gap-2 sm:flex-col sm:items-end sm:gap-0">
+            <p class="text-3xl font-bold tabular-nums text-amber-950 sm:text-4xl">5</p>
+            <p class="text-xs font-semibold text-amber-800 group-hover:underline">未対応一覧を見る →</p>
+          </div>
+        </a>
+
+        <ul class="space-y-2 font-jp" aria-label="優先度別タイトル一覧">
+          <li class="flex flex-col gap-2 rounded-xl bg-white p-3 shadow-sm ring-1 ring-red-100 sm:flex-row sm:items-center sm:gap-3">
+            <span class="inline-flex shrink-0 items-center gap-2 self-start rounded-full bg-red-50 px-2.5 py-1 text-xs font-bold text-red-800 ring-1 ring-red-200">
+              <span class="h-2 w-2 rounded-full bg-red-500" aria-hidden="true"></span>
+              即共有 1
+            </span>
+            <p class="min-w-0 flex-1 text-sm font-semibold leading-snug text-slate-800">
+              FCA、レジリエンス関連の監督方針ドラフトを公表
+            </p>
+            <fieldset class="shrink-0 border-0 p-0 sm:max-w-[13rem]">
+              <legend class="sr-only">共有の記録（一覧）</legend>
+              <p class="mb-1 text-[10px] font-semibold text-slate-500">共有の記録</p>
+              <div class="flex flex-col gap-1 text-[11px] text-slate-700">
+                <label class="inline-flex cursor-pointer items-center gap-1.5 rounded px-0.5 hover:bg-slate-50">
+                  <input type="radio" name="share_record_summary_1" value="pending" class="h-3.5 w-3.5 shrink-0 accent-slate-600" checked />
+                  未対応
+                </label>
+                <label class="inline-flex cursor-pointer items-center gap-1.5 rounded px-0.5 hover:bg-slate-50">
+                  <input type="radio" name="share_record_summary_1" value="shared" class="h-3.5 w-3.5 shrink-0 accent-emerald-600" />
+                  共有した
+                </label>
+                <label class="inline-flex cursor-pointer items-center gap-1.5 rounded px-0.5 hover:bg-slate-50">
+                  <input type="radio" name="share_record_summary_1" value="skipped" class="h-3.5 w-3.5 shrink-0 accent-slate-600" />
+                  共有しない（確定）
+                </label>
+              </div>
+            </fieldset>
+          </li>
+          <li class="flex flex-col gap-2 rounded-xl bg-white p-3 shadow-sm ring-1 ring-amber-100 sm:flex-row sm:items-center sm:gap-3">
+            <span class="inline-flex shrink-0 items-center gap-2 self-start rounded-full bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-950 ring-1 ring-amber-200">
+              <span class="h-2 w-2 rounded-full bg-amber-400" aria-hidden="true"></span>
+              要確認 1
+            </span>
+            <p class="min-w-0 flex-1 text-sm font-semibold leading-snug text-slate-800">
+              ECB、銀行向け気候ストレステスト結果の概要を公表
+            </p>
+            <fieldset class="shrink-0 border-0 p-0 sm:max-w-[13rem]">
+              <legend class="sr-only">共有の記録（一覧）</legend>
+              <p class="mb-1 text-[10px] font-semibold text-slate-500">共有の記録</p>
+              <div class="flex flex-col gap-1 text-[11px] text-slate-700">
+                <label class="inline-flex cursor-pointer items-center gap-1.5 rounded px-0.5 hover:bg-slate-50">
+                  <input type="radio" name="share_record_summary_2" value="pending" class="h-3.5 w-3.5 shrink-0 accent-slate-600" checked />
+                  未対応
+                </label>
+                <label class="inline-flex cursor-pointer items-center gap-1.5 rounded px-0.5 hover:bg-slate-50">
+                  <input type="radio" name="share_record_summary_2" value="shared" class="h-3.5 w-3.5 shrink-0 accent-emerald-600" />
+                  共有した
+                </label>
+                <label class="inline-flex cursor-pointer items-center gap-1.5 rounded px-0.5 hover:bg-slate-50">
+                  <input type="radio" name="share_record_summary_2" value="skipped" class="h-3.5 w-3.5 shrink-0 accent-slate-600" />
+                  共有しない（確定）
+                </label>
+              </div>
+            </fieldset>
+          </li>
+          <li class="flex flex-col gap-2 rounded-xl bg-white p-3 shadow-sm ring-1 ring-emerald-100 sm:flex-row sm:items-center sm:gap-3">
+            <span class="inline-flex shrink-0 items-center gap-2 self-start rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-800 ring-1 ring-emerald-200">
+              <span class="h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true"></span>
+              参考 1
+            </span>
+            <p class="min-w-0 flex-1 text-sm font-semibold leading-snug text-slate-800">
+              PRA、テック・レジリエンスに関する講演要旨を掲載
+            </p>
+            <fieldset class="shrink-0 border-0 p-0 sm:max-w-[13rem]">
+              <legend class="sr-only">共有の記録（一覧）</legend>
+              <p class="mb-1 text-[10px] font-semibold text-slate-500">共有の記録</p>
+              <div class="flex flex-col gap-1 text-[11px] text-slate-700">
+                <label class="inline-flex cursor-pointer items-center gap-1.5 rounded px-0.5 hover:bg-slate-50">
+                  <input type="radio" name="share_record_summary_3" value="pending" class="h-3.5 w-3.5 shrink-0 accent-slate-600" />
+                  未対応
+                </label>
+                <label class="inline-flex cursor-pointer items-center gap-1.5 rounded px-0.5 hover:bg-slate-50">
+                  <input type="radio" name="share_record_summary_3" value="shared" class="h-3.5 w-3.5 shrink-0 accent-emerald-600" />
+                  共有した
+                </label>
+                <label class="inline-flex cursor-pointer items-center gap-1.5 rounded px-0.5 hover:bg-slate-50">
+                  <input type="radio" name="share_record_summary_3" value="skipped" class="h-3.5 w-3.5 shrink-0 accent-slate-600" checked />
+                  共有しない（確定）
+                </label>
+              </div>
+            </fieldset>
+          </li>
+        </ul>
+      </div>
+    </header>
+
+    <ol class="space-y-8">
+      <li>
+        <article class="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
+          <div class="flex flex-col sm:flex-row">
+            <div class="flex items-center justify-between gap-3 border-b border-red-100 bg-red-50 px-5 py-4 sm:w-44 sm:flex-col sm:items-stretch sm:justify-center sm:border-b-0 sm:border-r">
+              <div class="flex items-center gap-2">
+                <span class="text-2xl leading-none text-red-500" aria-hidden="true">●</span>
+                <div>
+                  <p class="font-jp text-xs font-semibold text-red-700">優先度</p>
+                  <p class="font-jp text-sm font-bold text-red-900">即共有</p>
+                </div>
+              </div>
+              <p class="text-right text-xs text-red-700 sm:text-left">#1</p>
+            </div>
+            <div class="flex-1 px-5 py-5 sm:px-6 sm:py-6">
+              <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+                <h2 class="font-jp flex-1 text-lg font-bold text-slate-900 sm:text-xl">
+                  FCA、レジリエンス関連の監督方針ドラフトを公表
+                </h2>
+                <fieldset class="shrink-0 rounded-xl border border-slate-200 bg-slate-50/80 px-3 py-2.5 sm:min-w-[12rem]">
+                  <legend class="font-jp px-0.5 text-xs font-semibold text-slate-600">共有の記録</legend>
+                  <p class="font-jp mb-2 text-[11px] leading-snug text-slate-500">いずれか1つ（本番では一覧と同期推奨）</p>
+                  <div class="font-jp flex flex-col gap-2 text-sm text-slate-800">
+                    <label class="inline-flex cursor-pointer items-center gap-2 rounded-md px-1 py-0.5 hover:bg-white">
+                      <input type="radio" name="share_record_detail_1" value="pending" class="h-4 w-4 shrink-0 accent-slate-600" checked />
+                      未対応
+                    </label>
+                    <label class="inline-flex cursor-pointer items-center gap-2 rounded-md px-1 py-0.5 hover:bg-white">
+                      <input type="radio" name="share_record_detail_1" value="shared" class="h-4 w-4 shrink-0 accent-emerald-600" />
+                      共有した
+                    </label>
+                    <label class="inline-flex cursor-pointer items-center gap-2 rounded-md px-1 py-0.5 hover:bg-white">
+                      <input type="radio" name="share_record_detail_1" value="skipped" class="h-4 w-4 shrink-0 accent-slate-600" />
+                      共有しない（確定）
+                    </label>
+                  </div>
+                </fieldset>
+              </div>
+              <dl class="mt-4 space-y-3 text-sm">
+                <div>
+                  <dt class="font-jp text-xs font-semibold uppercase tracking-wide text-slate-500">要約</dt>
+                  <dd class="font-jp mt-1 text-slate-700">
+                    重要事業サービスに関する復旧目標やテスト頻度が具体化され、日系拠点のオペレーション・ガバナンス見直しが必要になる可能性。
+                  </dd>
+                </div>
+                <div class="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <dt class="font-jp text-xs font-semibold uppercase tracking-wide text-slate-500">出典</dt>
+                    <dd class="mt-1">
+                      <span class="font-jp font-medium text-slate-800">金融行為規制当局（FCA）</span>
+                      <a href="#" class="mt-1 block truncate text-sm font-medium text-blue-700 underline decoration-blue-300 underline-offset-2 hover:text-blue-900">https://www.fca.org.uk/publications/…</a>
+                    </dd>
+                  </div>
+                  <div>
+                    <dt class="font-jp text-xs font-semibold uppercase tracking-wide text-slate-500">公表日</dt>
+                    <dd class="mt-1 font-medium text-slate-800">2026-04-07</dd>
+                  </div>
+                </div>
+                <div>
+                  <dt class="font-jp text-xs font-semibold uppercase tracking-wide text-slate-500">背景</dt>
+                  <dd class="font-jp mt-1 text-slate-700">
+                    UKのレジリエンス規制と監督のギャップを埋める動きの一環。既存のIORツールとの整合確認が論点。
+                  </dd>
+                </div>
+                <div class="rounded-lg bg-red-50/80 p-3 ring-1 ring-red-100">
+                  <dt class="font-jp text-xs font-semibold uppercase tracking-wide text-red-800">優先度の理由</dt>
+                  <dd class="font-jp mt-1 text-sm text-red-950">
+                    ドラフト段階でもコメント期限が短く、ロンドン拠点のコンプライアンス・ITが早期に影響評価すべき内容。
+                  </dd>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                  <dt class="font-jp w-full text-xs font-semibold uppercase tracking-wide text-slate-500">クライアント共有</dt>
+                  <dd class="mt-1 w-full">
+                    <span class="inline-flex items-center rounded-md bg-emerald-100 px-2.5 py-1 text-xs font-bold text-emerald-900 ring-1 ring-emerald-200">推奨</span>
+                  </dd>
+                </div>
+                <div class="rounded-lg border border-dashed border-slate-200 bg-slate-50/80 p-3">
+                  <dt class="font-jp text-xs font-semibold uppercase tracking-wide text-slate-500">社内メモ</dt>
+                  <dd class="font-jp mt-1 text-sm text-slate-600">明日AMにオペレーション部と15分すり合わせ予定。</dd>
+                </div>
+              </dl>
+            </div>
+          </div>
+        </article>
+      </li>
+
+      <li>
+        <article class="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
+          <div class="flex flex-col sm:flex-row">
+            <div class="flex items-center justify-between gap-3 border-b border-amber-100 bg-amber-50 px-5 py-4 sm:w-44 sm:flex-col sm:items-stretch sm:justify-center sm:border-b-0 sm:border-r">
+              <div class="flex items-center gap-2">
+                <span class="text-2xl leading-none text-amber-500" aria-hidden="true">●</span>
+                <div>
+                  <p class="font-jp text-xs font-semibold text-amber-800">優先度</p>
+                  <p class="font-jp text-sm font-bold text-amber-950">要確認</p>
+                </div>
+              </div>
+              <p class="text-right text-xs text-amber-800 sm:text-left">#2</p>
+            </div>
+            <div class="flex-1 px-5 py-5 sm:px-6 sm:py-6">
+              <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+                <h2 class="font-jp flex-1 text-lg font-bold text-slate-900 sm:text-xl">
+                  ECB、銀行向け気候ストレステスト結果の概要を公表
+                </h2>
+                <fieldset class="shrink-0 rounded-xl border border-slate-200 bg-slate-50/80 px-3 py-2.5 sm:min-w-[12rem]">
+                  <legend class="font-jp px-0.5 text-xs font-semibold text-slate-600">共有の記録</legend>
+                  <p class="font-jp mb-2 text-[11px] leading-snug text-slate-500">いずれか1つ（本番では一覧と同期推奨）</p>
+                  <div class="font-jp flex flex-col gap-2 text-sm text-slate-800">
+                    <label class="inline-flex cursor-pointer items-center gap-2 rounded-md px-1 py-0.5 hover:bg-white">
+                      <input type="radio" name="share_record_detail_2" value="pending" class="h-4 w-4 shrink-0 accent-slate-600" checked />
+                      未対応
+                    </label>
+                    <label class="inline-flex cursor-pointer items-center gap-2 rounded-md px-1 py-0.5 hover:bg-white">
+                      <input type="radio" name="share_record_detail_2" value="shared" class="h-4 w-4 shrink-0 accent-emerald-600" />
+                      共有した
+                    </label>
+                    <label class="inline-flex cursor-pointer items-center gap-2 rounded-md px-1 py-0.5 hover:bg-white">
+                      <input type="radio" name="share_record_detail_2" value="skipped" class="h-4 w-4 shrink-0 accent-slate-600" />
+                      共有しない（確定）
+                    </label>
+                  </div>
+                </fieldset>
+              </div>
+              <dl class="mt-4 space-y-3 text-sm">
+                <div>
+                  <dt class="font-jp text-xs font-semibold uppercase tracking-wide text-slate-500">要約</dt>
+                  <dd class="font-jp mt-1 text-slate-700">
+                    ユーロ圏銀行を対象としたシナリオ分析の集計。直接の資本要件には直結しないが、監督対話の論点になりうる。
+                  </dd>
+                </div>
+                <div class="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <dt class="font-jp text-xs font-semibold uppercase tracking-wide text-slate-500">出典</dt>
+                    <dd class="mt-1">
+                      <span class="font-jp font-medium text-slate-800">欧州中央銀行（ECB）銀行監督</span>
+                      <a href="#" class="mt-1 block truncate text-sm font-medium text-blue-700 underline decoration-blue-300 underline-offset-2 hover:text-blue-900">https://www.bankingsupervision.europa.eu/…</a>
+                    </dd>
+                  </div>
+                  <div>
+                    <dt class="font-jp text-xs font-semibold uppercase tracking-wide text-slate-500">公表日</dt>
+                    <dd class="mt-1 font-medium text-slate-800">2026-04-08</dd>
+                  </div>
+                </div>
+                <div>
+                  <dt class="font-jp text-xs font-semibold uppercase tracking-wide text-slate-500">背景</dt>
+                  <dd class="font-jp mt-1 text-slate-700">
+                    欧州の気候リスク監督が「データ品質とシナリオ設計」に移行しているタイミング。日系欧州子会社の報告ラインとの整合が論点。
+                  </dd>
+                </div>
+                <div class="rounded-lg bg-amber-50/90 p-3 ring-1 ring-amber-100">
+                  <dt class="font-jp text-xs font-semibold uppercase tracking-wide text-amber-900">優先度の理由</dt>
+                  <dd class="font-jp mt-1 text-sm text-amber-950">
+                    クライアントによってはESG方針と結びつけて説明を求められる。自社のEU実体の該当有無を先に確認したい。
+                  </dd>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                  <dt class="font-jp w-full text-xs font-semibold uppercase tracking-wide text-slate-500">クライアント共有</dt>
+                  <dd class="mt-1 w-full">
+                    <span class="inline-flex items-center rounded-md bg-amber-100 px-2.5 py-1 text-xs font-bold text-amber-950 ring-1 ring-amber-200">要判断</span>
+                  </dd>
+                </div>
+                <div class="rounded-lg border border-dashed border-slate-200 bg-slate-50/80 p-3">
+                  <dt class="font-jp text-xs font-semibold uppercase tracking-wide text-slate-500">社内メモ</dt>
+                  <dd class="font-jp mt-1 text-sm italic text-slate-400">（空欄のときはこのブロックを非表示にできます）</dd>
+                </div>
+              </dl>
+            </div>
+          </div>
+        </article>
+      </li>
+
+      <li>
+        <article class="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
+          <div class="flex flex-col sm:flex-row">
+            <div class="flex items-center justify-between gap-3 border-b border-emerald-100 bg-emerald-50 px-5 py-4 sm:w-44 sm:flex-col sm:items-stretch sm:justify-center sm:border-b-0 sm:border-r">
+              <div class="flex items-center gap-2">
+                <span class="text-2xl leading-none text-emerald-500" aria-hidden="true">●</span>
+                <div>
+                  <p class="font-jp text-xs font-semibold text-emerald-800">優先度</p>
+                  <p class="font-jp text-sm font-bold text-emerald-950">参考</p>
+                </div>
+              </div>
+              <p class="text-right text-xs text-emerald-800 sm:text-left">#3</p>
+            </div>
+            <div class="flex-1 px-5 py-5 sm:px-6 sm:py-6">
+              <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+                <h2 class="font-jp flex-1 text-lg font-bold text-slate-900 sm:text-xl">
+                  PRA、テック・レジリエンスに関する講演要旨を掲載
+                </h2>
+                <fieldset class="shrink-0 rounded-xl border border-slate-200 bg-slate-50/80 px-3 py-2.5 sm:min-w-[12rem]">
+                  <legend class="font-jp px-0.5 text-xs font-semibold text-slate-600">共有の記録</legend>
+                  <p class="font-jp mb-2 text-[11px] leading-snug text-slate-500">いずれか1つ（本番では一覧と同期推奨）</p>
+                  <div class="font-jp flex flex-col gap-2 text-sm text-slate-800">
+                    <label class="inline-flex cursor-pointer items-center gap-2 rounded-md px-1 py-0.5 hover:bg-white">
+                      <input type="radio" name="share_record_detail_3" value="pending" class="h-4 w-4 shrink-0 accent-slate-600" />
+                      未対応
+                    </label>
+                    <label class="inline-flex cursor-pointer items-center gap-2 rounded-md px-1 py-0.5 hover:bg-white">
+                      <input type="radio" name="share_record_detail_3" value="shared" class="h-4 w-4 shrink-0 accent-emerald-600" />
+                      共有した
+                    </label>
+                    <label class="inline-flex cursor-pointer items-center gap-2 rounded-md px-1 py-0.5 hover:bg-white">
+                      <input type="radio" name="share_record_detail_3" value="skipped" class="h-4 w-4 shrink-0 accent-slate-600" checked />
+                      共有しない（確定）
+                    </label>
+                  </div>
+                </fieldset>
+              </div>
+              <dl class="mt-4 space-y-3 text-sm">
+                <div>
+                  <dt class="font-jp text-xs font-semibold uppercase tracking-wide text-slate-500">要約</dt>
+                  <dd class="font-jp mt-1 text-slate-700">
+                    当局の「期待の方向性」を示すコメント中心で新規ルールではない。CISO・リスク委員会向けの読み物として有用。
+                  </dd>
+                </div>
+                <div class="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <dt class="font-jp text-xs font-semibold uppercase tracking-wide text-slate-500">出典</dt>
+                    <dd class="mt-1">
+                      <span class="font-jp font-medium text-slate-800">英国銀行監督機構（PRA）／イングランド銀行</span>
+                      <a href="#" class="mt-1 block truncate text-sm font-medium text-blue-700 underline decoration-blue-300 underline-offset-2 hover:text-blue-900">https://www.bankofengland.co.uk/…</a>
+                    </dd>
+                  </div>
+                  <div>
+                    <dt class="font-jp text-xs font-semibold uppercase tracking-wide text-slate-500">公表日</dt>
+                    <dd class="mt-1 font-medium text-slate-800">2026-04-05</dd>
+                  </div>
+                </div>
+                <div>
+                  <dt class="font-jp text-xs font-semibold uppercase tracking-wide text-slate-500">背景</dt>
+                  <dd class="font-jp mt-1 text-slate-700">
+                    第三者リスク・クラウド集中度が繰り返し言及。既存方針との重なりが大きいため優先度は低め。
+                  </dd>
+                </div>
+                <div class="rounded-lg bg-emerald-50/90 p-3 ring-1 ring-emerald-100">
+                  <dt class="font-jp text-xs font-semibold uppercase tracking-wide text-emerald-900">優先度の理由</dt>
+                  <dd class="font-jp mt-1 text-sm text-emerald-950">
+                    即時アクションは不要だが、四半期レビューの資料としてリンクを貼っておく価値あり。
+                  </dd>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                  <dt class="font-jp w-full text-xs font-semibold uppercase tracking-wide text-slate-500">クライアント共有</dt>
+                  <dd class="mt-1 w-full">
+                    <span class="inline-flex items-center rounded-md bg-slate-200 px-2.5 py-1 text-xs font-bold text-slate-800 ring-1 ring-slate-300">非推奨</span>
+                    <span class="ml-2 font-jp text-xs text-slate-500">（社内ナレッジ向け）</span>
+                  </dd>
+                </div>
+              </dl>
+            </div>
+          </div>
+        </article>
+      </li>
+    </ol>
+
+    <section
+      id="pending-backlog"
+      class="scroll-mt-8 mt-14 border-t border-slate-200 pt-10"
+      aria-labelledby="pending-backlog-heading"
+      tabindex="-1"
+    >
+      <div class="mb-5">
+        <h2 id="pending-backlog-heading" class="font-jp text-xl font-bold text-slate-900 sm:text-2xl">
+          未対応バックログ
+        </h2>
+        <p class="font-jp mt-2 text-sm leading-relaxed text-slate-600">
+          過去のブリーフで「共有の記録」が<strong class="font-semibold text-slate-800">未対応</strong>のままのトピックです。各行のリンクから当該日のブリーフ（または該当トピック）を開けます。
+        </p>
+      </div>
+      <ul class="font-jp space-y-2">
+        <li>
+          <a
+            href="https://example.com/briefs/2026-04-05#topic-2"
+            class="flex flex-col gap-1 rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200 transition hover:bg-slate-50 hover:ring-slate-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 sm:flex-row sm:items-center sm:gap-4"
+          >
+            <span class="flex shrink-0 flex-wrap items-center gap-2 text-xs text-slate-500">
+              <time datetime="2026-04-05">2026-04-05</time>
+              <span class="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-0.5 font-semibold text-red-800 ring-1 ring-red-100">即共有</span>
+            </span>
+            <span class="min-w-0 flex-1 text-sm font-semibold text-blue-800 underline decoration-blue-200 underline-offset-2">BoE、決済インフラに関するディスカッションペーパー公開</span>
+          </a>
+        </li>
+        <li>
+          <a
+            href="https://example.com/briefs/2026-04-03#topic-1"
+            class="flex flex-col gap-1 rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200 transition hover:bg-slate-50 hover:ring-slate-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 sm:flex-row sm:items-center sm:gap-4"
+          >
+            <span class="flex shrink-0 flex-wrap items-center gap-2 text-xs text-slate-500">
+              <time datetime="2026-04-03">2026-04-03</time>
+              <span class="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 font-semibold text-amber-950 ring-1 ring-amber-100">要確認</span>
+            </span>
+            <span class="min-w-0 flex-1 text-sm font-semibold text-blue-800 underline decoration-blue-200 underline-offset-2">ESMA、第三国拠点向けガイダンスのQ&amp;A更新</span>
+          </a>
+        </li>
+        <li>
+          <a
+            href="https://example.com/briefs/2026-03-31#topic-3"
+            class="flex flex-col gap-1 rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200 transition hover:bg-slate-50 hover:ring-slate-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 sm:flex-row sm:items-center sm:gap-4"
+          >
+            <span class="flex shrink-0 flex-wrap items-center gap-2 text-xs text-slate-500">
+              <time datetime="2026-03-31">2026-03-31</time>
+              <span class="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 font-semibold text-amber-950 ring-1 ring-amber-100">要確認</span>
+            </span>
+            <span class="min-w-0 flex-1 text-sm font-semibold text-blue-800 underline decoration-blue-200 underline-offset-2">FCA、コールレポート提出期限のリマインダー</span>
+          </a>
+        </li>
+        <li>
+          <a
+            href="https://example.com/briefs/2026-03-28#topic-1"
+            class="flex flex-col gap-1 rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200 transition hover:bg-slate-50 hover:ring-slate-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 sm:flex-row sm:items-center sm:gap-4"
+          >
+            <span class="flex shrink-0 flex-wrap items-center gap-2 text-xs text-slate-500">
+              <time datetime="2026-03-28">2026-03-28</time>
+              <span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 font-semibold text-emerald-800 ring-1 ring-emerald-100">参考</span>
+            </span>
+            <span class="min-w-0 flex-1 text-sm font-semibold text-blue-800 underline decoration-blue-200 underline-offset-2">PRA、監督官との定例コミュニケーションに関する注記</span>
+          </a>
+        </li>
+        <li>
+          <a
+            href="https://example.com/briefs/2026-03-22#topic-2"
+            class="flex flex-col gap-1 rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200 transition hover:bg-slate-50 hover:ring-slate-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 sm:flex-row sm:items-center sm:gap-4"
+          >
+            <span class="flex shrink-0 flex-wrap items-center gap-2 text-xs text-slate-500">
+              <time datetime="2026-03-22">2026-03-22</time>
+              <span class="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-0.5 font-semibold text-red-800 ring-1 ring-red-100">即共有</span>
+            </span>
+            <span class="min-w-0 flex-1 text-sm font-semibold text-blue-800 underline decoration-blue-200 underline-offset-2">EBA、リスクデータ集約に関する公開コンサル開始</span>
+          </a>
+        </li>
+      </ul>
+      <p class="font-jp mt-4 text-xs text-slate-500">
+        リンク先 URL はサンプルです。本番では各日付ブリーフの永続 URL ＋ トピックアンカー（例 <code class="rounded bg-slate-100 px-1 font-mono text-[11px]">#topic-2</code>）に差し替えてください。
+      </p>
+    </section>
+
+    <section class="mt-14 border-t border-slate-200 pt-10" aria-labelledby="monthly-share-heading">
+      <div class="mb-6">
+        <h2 id="monthly-share-heading" class="font-jp text-xl font-bold text-slate-900 sm:text-2xl">
+          共有実績サマリー（月次）
+        </h2>
+        <p class="font-jp mt-2 text-sm leading-relaxed text-slate-600">
+          「共有の記録」が<strong class="font-semibold text-slate-800">共有した</strong>に確定したトピックだけを数えます。未対応・共有見送りは含みません。日次の全件一覧ではなく、優先度別の傾向把握向けです。
+        </p>
+      </div>
+
+      <div class="space-y-5 font-jp">
+        <!-- サンプル行：本番では月ごとにループ -->
+        <article class="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 sm:p-5">
+          <div class="flex flex-wrap items-end justify-between gap-2 border-b border-slate-100 pb-3">
+            <h3 class="text-lg font-bold text-slate-900">2026年4月</h3>
+            <p class="text-sm text-slate-500">
+              共有した合計 <span class="font-bold tabular-nums text-slate-800">12</span> 件
+            </p>
+          </div>
+          <div class="mt-4 grid gap-4 sm:grid-cols-[1fr_auto] sm:items-center">
+            <div>
+              <p class="mb-1.5 text-xs font-semibold text-slate-500">優先度の内訳（共有した件数）</p>
+              <div class="flex h-3 overflow-hidden rounded-full bg-slate-100 ring-1 ring-slate-200" title="即共有6・要確認4・参考2">
+                <span class="bg-red-500" style="width: 50%"></span>
+                <span class="bg-amber-400" style="width: 33.333%"></span>
+                <span class="bg-emerald-500" style="width: 16.667%"></span>
+              </div>
+              <ul class="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm">
+                <li class="inline-flex items-center gap-1.5">
+                  <span class="h-2.5 w-2.5 shrink-0 rounded-full bg-red-500" aria-hidden="true"></span>
+                  即共有 <strong class="tabular-nums text-slate-900">6</strong>
+                </li>
+                <li class="inline-flex items-center gap-1.5">
+                  <span class="h-2.5 w-2.5 shrink-0 rounded-full bg-amber-400" aria-hidden="true"></span>
+                  要確認 <strong class="tabular-nums text-slate-900">4</strong>
+                </li>
+                <li class="inline-flex items-center gap-1.5">
+                  <span class="h-2.5 w-2.5 shrink-0 rounded-full bg-emerald-500" aria-hidden="true"></span>
+                  参考 <strong class="tabular-nums text-slate-900">2</strong>
+                </li>
+              </ul>
+            </div>
+            <div class="rounded-xl bg-slate-50 px-3 py-2 text-center ring-1 ring-slate-100 sm:min-w-[5.5rem]">
+              <p class="text-[10px] font-semibold uppercase tracking-wide text-slate-500">前月比</p>
+              <p class="text-sm font-bold text-emerald-700">+3</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 sm:p-5">
+          <div class="flex flex-wrap items-end justify-between gap-2 border-b border-slate-100 pb-3">
+            <h3 class="text-lg font-bold text-slate-900">2026年3月</h3>
+            <p class="text-sm text-slate-500">
+              共有した合計 <span class="font-bold tabular-nums text-slate-800">9</span> 件
+            </p>
+          </div>
+          <div class="mt-4">
+            <p class="mb-1.5 text-xs font-semibold text-slate-500">優先度の内訳（共有した件数）</p>
+            <div class="flex h-3 overflow-hidden rounded-full bg-slate-100 ring-1 ring-slate-200" title="即共有5・要確認3・参考1">
+              <span class="bg-red-500" style="width: 55.556%"></span>
+              <span class="bg-amber-400" style="width: 33.333%"></span>
+              <span class="bg-emerald-500" style="width: 11.111%"></span>
+            </div>
+            <ul class="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm">
+              <li class="inline-flex items-center gap-1.5">
+                <span class="h-2.5 w-2.5 shrink-0 rounded-full bg-red-500" aria-hidden="true"></span>
+                即共有 <strong class="tabular-nums text-slate-900">5</strong>
+              </li>
+              <li class="inline-flex items-center gap-1.5">
+                <span class="h-2.5 w-2.5 shrink-0 rounded-full bg-amber-400" aria-hidden="true"></span>
+                要確認 <strong class="tabular-nums text-slate-900">3</strong>
+              </li>
+              <li class="inline-flex items-center gap-1.5">
+                <span class="h-2.5 w-2.5 shrink-0 rounded-full bg-emerald-500" aria-hidden="true"></span>
+                参考 <strong class="tabular-nums text-slate-900">1</strong>
+              </li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 sm:p-5">
+          <div class="flex flex-wrap items-end justify-between gap-2 border-b border-slate-100 pb-3">
+            <h3 class="text-lg font-bold text-slate-900">2026年2月</h3>
+            <p class="text-sm text-slate-500">
+              共有した合計 <span class="font-bold tabular-nums text-slate-800">7</span> 件
+            </p>
+          </div>
+          <div class="mt-4">
+            <p class="mb-1.5 text-xs font-semibold text-slate-500">優先度の内訳（共有した件数）</p>
+            <div class="flex h-3 overflow-hidden rounded-full bg-slate-100 ring-1 ring-slate-200" title="即共有3・要確認2・参考2">
+              <span class="bg-red-500" style="width: 42.857%"></span>
+              <span class="bg-amber-400" style="width: 28.571%"></span>
+              <span class="bg-emerald-500" style="width: 28.571%"></span>
+            </div>
+            <ul class="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm">
+              <li class="inline-flex items-center gap-1.5">
+                <span class="h-2.5 w-2.5 shrink-0 rounded-full bg-red-500" aria-hidden="true"></span>
+                即共有 <strong class="tabular-nums text-slate-900">3</strong>
+              </li>
+              <li class="inline-flex items-center gap-1.5">
+                <span class="h-2.5 w-2.5 shrink-0 rounded-full bg-amber-400" aria-hidden="true"></span>
+                要確認 <strong class="tabular-nums text-slate-900">2</strong>
+              </li>
+              <li class="inline-flex items-center gap-1.5">
+                <span class="h-2.5 w-2.5 shrink-0 rounded-full bg-emerald-500" aria-hidden="true"></span>
+                参考 <strong class="tabular-nums text-slate-900">2</strong>
+              </li>
+            </ul>
+          </div>
+        </article>
+
+        <p class="rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-500 ring-1 ring-slate-100">
+          個別トピックの全文履歴が必要な場合は、別ビューで検索・フィルタ（月・優先度・共有ステータス）を用意すると一覧が膨らみすぎずに済みます。
+        </p>
+      </div>
+    </section>
+
+    <footer class="mt-10 text-center font-jp text-xs text-slate-400">
+      サンプルレイアウト · メール配信時は Web 表示リンクやインライン CSS の利用をご検討ください。
+    </footer>
+  </div>
+</body>
+</html>
