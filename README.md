@@ -1,6 +1,6 @@
 # Daily brief（レイアウトサンプル）
 
-静的 HTML のみです。`index.html` がトップページです（`daily-brief-sample.html` と同一内容）。
+静的 HTML のみです。**編集するファイルは `index.html` だけ**で大丈夫です（サイトのトップページになります）。
 
 ## 他の人に見せる方法
 
