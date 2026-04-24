@@ -1,0 +1,71 @@
+name: Daily brief (Europe/London 07:00)
+
+# GitHub cron は UTC のため、冬 07:00 GMT と夏 07:00 BST の両方で起動し、
+# ジョブ内で Europe/London の時刻が 7 時かどうかを判定する。
+on:
+  schedule:
+    - cron: "0 6 * * *"
+    - cron: "0 7 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  brief:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: gate
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          python3 <<'PY'
+          import os
+          from datetime import datetime
+          from zoneinfo import ZoneInfo
+
+          gh_out = os.environ["GITHUB_OUTPUT"]
+          if os.environ.get("EVENT_NAME") == "workflow_dispatch":
+              skip = "false"
+          else:
+              now = datetime.now(ZoneInfo("Europe/London"))
+              skip = "false" if now.hour == 7 else "true"
+          with open(gh_out, "a", encoding="utf-8") as f:
+              f.write(f"skip={skip}\n")
+          PY
+
+      - uses: actions/cache@v4
+        if: steps.gate.outputs.skip == 'false'
+        with:
+          path: data/state.json
+          key: brief-state-${{ github.ref_name }}
+
+      - uses: actions/setup-python@v5
+        if: steps.gate.outputs.skip == 'false'
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        if: steps.gate.outputs.skip == 'false'
+        run: pip install -r requirements.txt
+
+      - name: Build brief
+        if: steps.gate.outputs.skip == 'false'
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          if [ -n "${OPENAI_API_KEY:-}" ]; then
+            python -m brief_pipeline.build
+          else
+            echo "OPENAI_API_KEY 未設定のため --mock でビルドします"
+            python -m brief_pipeline.build --mock
+          fi
+
+      - uses: actions/upload-artifact@v4
+        if: steps.gate.outputs.skip == 'false'
+        with:
+          name: brief-dist-${{ github.run_id }}
+          path: dist
+          retention-days: 14

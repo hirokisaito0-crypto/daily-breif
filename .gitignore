@@ -1,2 +1,10 @@
 .DS_Store
 Thumbs.db
+
+dist/
+data/state.json
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/

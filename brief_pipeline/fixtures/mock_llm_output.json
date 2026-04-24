@@ -1,0 +1,44 @@
+{
+  "brief_date": "2026-04-24",
+  "topics": [
+    {
+      "priority": "immediate",
+      "title": "FCA、レジリエンス関連の監督方針ドラフトを公表",
+      "summary": "重要事業サービスに関する復旧目標やテスト頻度が具体化され、日系拠点のオペレーション・ガバナンス見直しが必要になる可能性があります。",
+      "source_name": "金融行為規制当局（FCA）",
+      "source_url": "https://www.fca.org.uk/publications/",
+      "published_date": "2026-04-07",
+      "background": "UKのレジリエンス規制と監督のギャップを埋める動きの一環。既存のIORツールとの整合確認が論点。",
+      "priority_reason": "ドラフト段階でもコメント期限が短い場合があり、ロンドン拠点のコンプライアンス・ITが早期に影響評価すべき内容になり得ます。",
+      "client_share": "recommended",
+      "share_record": "pending",
+      "internal_memo": "明日AMにオペレーション部と15分すり合わせ予定。"
+    },
+    {
+      "priority": "review",
+      "title": "ECB、銀行向け気候ストレステスト結果の概要を公表",
+      "summary": "ユーロ圏銀行を対象としたシナリオ分析の集計。直接の資本要件には直結しない一方、監督対話の論点になり得ます。",
+      "source_name": "欧州中央銀行（ECB）銀行監督",
+      "source_url": "https://www.bankingsupervision.europa.eu/",
+      "published_date": "2026-04-08",
+      "background": "欧州の気候リスク監督がデータ品質とシナリオ設計に移行しているタイミング。日系欧州子会社の報告ラインとの整合が論点。",
+      "priority_reason": "クライアントによってはESG方針と結びつけて説明を求められる可能性があります。自社のEU実体の該当有無を先に確認したいです。",
+      "client_share": "judgment",
+      "share_record": "pending",
+      "internal_memo": ""
+    },
+    {
+      "priority": "reference",
+      "title": "PRA、テック・レジリエンスに関する講演要旨を掲載",
+      "summary": "当局の期待の方向性を示すコメント中心で新規ルールではありません。CISO・リスク委員会向けの読み物として有用です。",
+      "source_name": "英国銀行監督機構（PRA）／イングランド銀行",
+      "source_url": "https://www.bankofengland.co.uk/",
+      "published_date": "2026-04-05",
+      "background": "第三者リスク・クラウド集中度が繰り返し言及。既存方針との重なりが大きいため優先度は低め。",
+      "priority_reason": "即時アクションは不要な可能性が高い一方、四半期レビューの資料としてリンクを貼っておく価値があります。",
+      "client_share": "not_recommended",
+      "share_record": "pending",
+      "internal_memo": ""
+    }
+  ]
+}

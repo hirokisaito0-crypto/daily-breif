@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/schemas/brief-output.schema.json",
+  "title": "DailyBriefLLMOutput",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["brief_date", "topics"],
+  "properties": {
+    "brief_date": {
+      "type": "string",
+      "description": "ISO date YYYY-MM-DD for the brief (Europe/London calendar day)",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+    },
+    "topics": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 3,
+      "items": { "$ref": "#/$defs/topic" }
+    }
+  },
+  "$defs": {
+    "topic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "priority",
+        "title",
+        "summary",
+        "source_name",
+        "source_url",
+        "published_date",
+        "background",
+        "priority_reason",
+        "client_share",
+        "share_record",
+        "internal_memo"
+      ],
+      "properties": {
+        "priority": {
+          "type": "string",
+          "enum": ["immediate", "review", "reference"],
+          "description": "immediate=即共有, review=要確認, reference=参考"
+        },
+        "title": { "type": "string", "minLength": 1 },
+        "summary": { "type": "string", "minLength": 1 },
+        "source_name": { "type": "string", "minLength": 1 },
+        "source_url": { "type": "string", "minLength": 4 },
+        "published_date": {
+          "type": "string",
+          "description": "Display as YYYY-MM-DD",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        },
+        "background": { "type": "string" },
+        "priority_reason": { "type": "string" },
+        "client_share": {
+          "type": "string",
+          "enum": ["recommended", "judgment", "not_recommended"],
+          "description": "クライアント共有: 推奨 / 要判断 / 非推奨"
+        },
+        "share_record": {
+          "type": "string",
+          "enum": ["pending", "done_shared", "done_skipped"],
+          "description": "新規生成時は通常 pending"
+        },
+        "internal_memo": {
+          "type": "string",
+          "description": "空文字なら社内メモブロックを非表示"
+        }
+      }
+    }
+  }
+}

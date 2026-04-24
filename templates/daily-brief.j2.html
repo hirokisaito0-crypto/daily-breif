@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>本日のピックアップ（上位3件）— {{ date_display_ja }}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Segoe UI"', 'system-ui', 'sans-serif'],
+            jp: ['"Hiragino Sans"', '"Hiragino Kaku Gothic ProN"', 'Meiryo', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+</head>
+<body class="min-h-screen bg-slate-100 font-sans text-slate-900 antialiased">
+  <div class="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8">
+    <header class="mb-10 border-b border-slate-200 pb-8">
+      <p class="font-jp text-xs font-medium tracking-wide text-slate-500">UK・欧州 · 日系金融機関向け</p>
+      <h1 class="mt-2 font-jp text-2xl font-bold leading-tight text-slate-900 sm:text-3xl">
+        本日のピックアップ（上位3件）
+      </h1>
+      <div class="mt-4 space-y-3">
+        <div class="flex flex-wrap items-center gap-3">
+          <time datetime="{{ date_iso }}" class="rounded-lg bg-white px-3 py-1.5 text-sm font-semibold text-slate-800 shadow-sm ring-1 ring-slate-200">
+            {{ date_display_ja }}
+          </time>
+          <span class="font-jp text-sm text-slate-500">優先度内訳（タイトル）</span>
+        </div>
+
+        <a
+          href="#pending-backlog"
+          class="font-jp group flex flex-col gap-2 rounded-xl bg-white p-4 shadow-sm ring-2 ring-amber-200 transition hover:bg-amber-50/50 hover:ring-amber-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
+        >
+          <div class="flex items-center gap-3">
+            <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-amber-100 text-lg font-bold text-amber-900 ring-1 ring-amber-200" aria-hidden="true">!</span>
+            <div>
+              <p class="text-sm font-semibold text-slate-800">共有の記録が未対応の残件</p>
+              <p class="mt-0.5 text-xs text-slate-500">クリック（または Enter）で過去分の一覧へ移動します</p>
+            </div>
+          </div>
+          <div class="flex shrink-0 items-baseline gap-2 sm:flex-col sm:items-end sm:gap-0">
+            <p class="text-3xl font-bold tabular-nums text-amber-950 sm:text-4xl">{{ pending_count }}</p>
+            <p class="text-xs font-semibold text-amber-800 group-hover:underline">未対応一覧を見る →</p>
+          </div>
+        </a>
+
+        {% if topics %}
+        <ul class="space-y-2 font-jp" aria-label="優先度別タイトル一覧">
+          {% for topic in topics %}
+          <li class="flex flex-col gap-2 rounded-xl bg-white p-3 shadow-sm ring-1 {{ topic.summary_row_ring }} sm:flex-row sm:items-center sm:gap-3">
+            <span class="inline-flex shrink-0 items-center gap-2 self-start rounded-full px-2.5 py-1 text-xs font-bold ring-1 {{ topic.summary_badge_bg }} {{ topic.summary_badge_text }} {{ topic.summary_badge_ring }}">
+              <span class="h-2 w-2 rounded-full {{ topic.summary_dot }}" aria-hidden="true"></span>
+              {{ topic.priority_label }} {{ topic.priority_index }}
+            </span>
+            <p class="min-w-0 flex-1 text-sm font-semibold leading-snug text-slate-800">
+              {{ topic.title }}
+            </p>
+            <fieldset class="shrink-0 border-0 p-0 sm:max-w-[13rem]">
+              <legend class="sr-only">共有の記録（一覧）</legend>
+              <p class="mb-1 text-[10px] font-semibold text-slate-500">共有の記録</p>
+              <div class="flex flex-col gap-1 text-[11px] text-slate-700">
+                <label class="inline-flex cursor-pointer items-center gap-1.5 rounded px-0.5 hover:bg-slate-50">
+                  <input type="radio" name="share_record_summary_{{ loop.index }}" value="pending" class="h-3.5 w-3.5 shrink-0 accent-slate-600" {% if topic.share_record == 'pending' %}checked{% endif %} />
+                  未対応
+                </label>
+                <label class="inline-flex cursor-pointer items-center gap-1.5 rounded px-0.5 hover:bg-slate-50">
+                  <input type="radio" name="share_record_summary_{{ loop.index }}" value="shared" class="h-3.5 w-3.5 shrink-0 accent-emerald-600" {% if topic.share_record == 'done_shared' %}checked{% endif %} />
+                  共有した
+                </label>
+                <label class="inline-flex cursor-pointer items-center gap-1.5 rounded px-0.5 hover:bg-slate-50">
+                  <input type="radio" name="share_record_summary_{{ loop.index }}" value="skipped" class="h-3.5 w-3.5 shrink-0 accent-slate-600" {% if topic.share_record == 'done_skipped' %}checked{% endif %} />
+                  共有しない（確定）
+                </label>
+              </div>
+            </fieldset>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="font-jp rounded-xl bg-white p-4 text-sm text-slate-600 shadow-sm ring-1 ring-slate-200">
+          本日は RSS 候補から選定できるトピックがありませんでした。フィード設定・取得ログを確認するか、<code class="rounded bg-slate-100 px-1 font-mono text-xs">--mock</code> でレイアウト確認してください。
+        </p>
+        {% endif %}
+      </div>
+    </header>
+
+    {% if topics %}
+    <ol class="space-y-8">
+      {% for topic in topics %}
+      <li id="topic-{{ topic.topic_index }}">
+        <article class="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
+          <div class="flex flex-col sm:flex-row">
+            <div class="flex items-center justify-between gap-3 border-b px-5 py-4 sm:w-44 sm:flex-col sm:items-stretch sm:justify-center sm:border-b-0 sm:border-r {{ topic.article_sidebar_border }} {{ topic.article_sidebar_bg }}">
+              <div class="flex items-center gap-2">
+                <span class="text-2xl leading-none {{ topic.article_dot }}" aria-hidden="true">●</span>
+                <div>
+                  <p class="font-jp text-xs font-semibold {{ topic.article_sidebar_label }}">優先度</p>
+                  <p class="font-jp text-sm font-bold {{ topic.article_sidebar_title }}">{{ topic.priority_label }}</p>
+                </div>
+              </div>
+              <p class="text-right text-xs {{ topic.article_sidebar_label }} sm:text-left">#{{ topic.topic_index }}</p>
+            </div>
+            <div class="flex-1 px-5 py-5 sm:px-6 sm:py-6">
+              <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+                <h2 class="font-jp flex-1 text-lg font-bold text-slate-900 sm:text-xl">
+                  {{ topic.title }}
+                </h2>
+                <fieldset class="shrink-0 rounded-xl border border-slate-200 bg-slate-50/80 px-3 py-2.5 sm:min-w-[12rem]">
+                  <legend class="font-jp px-0.5 text-xs font-semibold text-slate-600">共有の記録</legend>
+                  <p class="font-jp mb-2 text-[11px] leading-snug text-slate-500">いずれか1つ（本番では一覧と同期推奨）</p>
+                  <div class="font-jp flex flex-col gap-2 text-sm text-slate-800">
+                    <label class="inline-flex cursor-pointer items-center gap-2 rounded-md px-1 py-0.5 hover:bg-white">
+                      <input type="radio" name="share_record_detail_{{ loop.index }}" value="pending" class="h-4 w-4 shrink-0 accent-slate-600" {% if topic.share_record == 'pending' %}checked{% endif %} />
+                      未対応
+                    </label>
+                    <label class="inline-flex cursor-pointer items-center gap-2 rounded-md px-1 py-0.5 hover:bg-white">
+                      <input type="radio" name="share_record_detail_{{ loop.index }}" value="shared" class="h-4 w-4 shrink-0 accent-emerald-600" {% if topic.share_record == 'done_shared' %}checked{% endif %} />
+                      共有した
+                    </label>
+                    <label class="inline-flex cursor-pointer items-center gap-2 rounded-md px-1 py-0.5 hover:bg-white">
+                      <input type="radio" name="share_record_detail_{{ loop.index }}" value="skipped" class="h-4 w-4 shrink-0 accent-slate-600" {% if topic.share_record == 'done_skipped' %}checked{% endif %} />
+                      共有しない（確定）
+                    </label>
+                  </div>
+                </fieldset>
+              </div>
+              <dl class="mt-4 space-y-3 text-sm">
+                <div>
+                  <dt class="font-jp text-xs font-semibold uppercase tracking-wide text-slate-500">要約</dt>
+                  <dd class="font-jp mt-1 text-slate-700">{{ topic.summary }}</dd>
+                </div>
+                <div class="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <dt class="font-jp text-xs font-semibold uppercase tracking-wide text-slate-500">出典</dt>
+                    <dd class="mt-1">
+                      <span class="font-jp font-medium text-slate-800">{{ topic.source_name }}</span>
+                      <a href="{{ topic.source_url }}" class="mt-1 block truncate text-sm font-medium text-blue-700 underline decoration-blue-300 underline-offset-2 hover:text-blue-900">{{ topic.source_url }}</a>
+                    </dd>
+                  </div>
+                  <div>
+                    <dt class="font-jp text-xs font-semibold uppercase tracking-wide text-slate-500">公表日</dt>
+                    <dd class="mt-1 font-medium text-slate-800">{{ topic.published_date }}</dd>
+                  </div>
+                </div>
+                <div>
+                  <dt class="font-jp text-xs font-semibold uppercase tracking-wide text-slate-500">背景</dt>
+                  <dd class="font-jp mt-1 text-slate-700">{{ topic.background }}</dd>
+                </div>
+                <div class="rounded-lg p-3 ring-1 {{ topic.reason_box_bg }} {{ topic.reason_box_ring }}">
+                  <dt class="font-jp text-xs font-semibold uppercase tracking-wide {{ topic.reason_dt }}">優先度の理由</dt>
+                  <dd class="font-jp mt-1 text-sm {{ topic.reason_dd }}">{{ topic.priority_reason }}</dd>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                  <dt class="font-jp w-full text-xs font-semibold uppercase tracking-wide text-slate-500">クライアント共有</dt>
+                  <dd class="mt-1 w-full">
+                    <span class="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-bold ring-1 {{ topic.client_share_classes }}">{{ topic.client_share_label }}</span>
+                    {% if topic.client_share_note %}
+                    <span class="ml-2 font-jp text-xs text-slate-500">{{ topic.client_share_note }}</span>
+                    {% endif %}
+                  </dd>
+                </div>
+                {% if topic.internal_memo %}
+                <div class="rounded-lg border border-dashed border-slate-200 bg-slate-50/80 p-3">
+                  <dt class="font-jp text-xs font-semibold uppercase tracking-wide text-slate-500">社内メモ</dt>
+                  <dd class="font-jp mt-1 text-sm text-slate-600">{{ topic.internal_memo }}</dd>
+                </div>
+                {% endif %}
+              </dl>
+            </div>
+          </div>
+        </article>
+      </li>
+      {% endfor %}
+    </ol>
+    {% else %}
+    <p class="font-jp mt-6 text-sm text-slate-500">詳細カードはトピックが1件以上ある場合に表示されます。</p>
+    {% endif %}
+
+    <section
+      id="pending-backlog"
+      class="scroll-mt-8 mt-14 border-t border-slate-200 pt-10"
+      aria-labelledby="pending-backlog-heading"
+      tabindex="-1"
+    >
+      <div class="mb-5">
+        <h2 id="pending-backlog-heading" class="font-jp text-xl font-bold text-slate-900 sm:text-2xl">
+          未対応バックログ
+        </h2>
+        <p class="font-jp mt-2 text-sm leading-relaxed text-slate-600">
+          過去のブリーフで「共有の記録」が<strong class="font-semibold text-slate-800">未対応</strong>のままのトピックです。各行のリンクから当該日のブリーフ（または該当トピック）を開けます。
+        </p>
+      </div>
+      {% if pending_backlog %}
+      <ul class="font-jp space-y-2">
+        {% for row in pending_backlog %}
+        <li>
+          <a
+            href="{{ row.href }}"
+            class="flex flex-col gap-1 rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200 transition hover:bg-slate-50 hover:ring-slate-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 sm:flex-row sm:items-center sm:gap-4"
+          >
+            <span class="flex shrink-0 flex-wrap items-center gap-2 text-xs text-slate-500">
+              <time datetime="{{ row.date_iso }}">{{ row.date_iso }}</time>
+              <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-semibold ring-1 {{ row.priority_badge_classes }}">{{ row.priority_label }}</span>
+            </span>
+            <span class="min-w-0 flex-1 text-sm font-semibold text-blue-800 underline decoration-blue-200 underline-offset-2">{{ row.title }}</span>
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="font-jp text-sm text-slate-600">該当する未対応トピックはありません。</p>
+      {% endif %}
+    </section>
+
+    <section class="mt-14 border-t border-slate-200 pt-10" aria-labelledby="monthly-share-heading">
+      <div class="mb-6">
+        <h2 id="monthly-share-heading" class="font-jp text-xl font-bold text-slate-900 sm:text-2xl">
+          共有実績サマリー（月次）
+        </h2>
+        <p class="font-jp mt-2 text-sm leading-relaxed text-slate-600">
+          「共有の記録」が<strong class="font-semibold text-slate-800">共有した</strong>に確定したトピックだけを数えます。未対応・共有見送りは含みません。日次の全件一覧ではなく、優先度別の傾向把握向けです。
+        </p>
+      </div>
+
+      <div class="space-y-5 font-jp">
+        {% for m in monthly_stats %}
+        <article class="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 sm:p-5">
+          <div class="flex flex-wrap items-end justify-between gap-2 border-b border-slate-100 pb-3">
+            <h3 class="text-lg font-bold text-slate-900">{{ m.year_month_label }}</h3>
+            <p class="text-sm text-slate-500">
+              共有した合計 <span class="font-bold tabular-nums text-slate-800">{{ m.total_shared }}</span> 件
+            </p>
+          </div>
+          <div class="mt-4 grid gap-4 sm:grid-cols-[1fr_auto] sm:items-center">
+            <div>
+              <p class="mb-1.5 text-xs font-semibold text-slate-500">優先度の内訳（共有した件数）</p>
+              <div class="flex h-3 overflow-hidden rounded-full bg-slate-100 ring-1 ring-slate-200" title="{{ m.bar_title }}">
+                <span class="bg-red-500" style="width: {{ m.pct_immediate }}%"></span>
+                <span class="bg-amber-400" style="width: {{ m.pct_review }}%"></span>
+                <span class="bg-emerald-500" style="width: {{ m.pct_reference }}%"></span>
+              </div>
+              <ul class="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm">
+                <li class="inline-flex items-center gap-1.5">
+                  <span class="h-2.5 w-2.5 shrink-0 rounded-full bg-red-500" aria-hidden="true"></span>
+                  即共有 <strong class="tabular-nums text-slate-900">{{ m.shared_immediate }}</strong>
+                </li>
+                <li class="inline-flex items-center gap-1.5">
+                  <span class="h-2.5 w-2.5 shrink-0 rounded-full bg-amber-400" aria-hidden="true"></span>
+                  要確認 <strong class="tabular-nums text-slate-900">{{ m.shared_review }}</strong>
+                </li>
+                <li class="inline-flex items-center gap-1.5">
+                  <span class="h-2.5 w-2.5 shrink-0 rounded-full bg-emerald-500" aria-hidden="true"></span>
+                  参考 <strong class="tabular-nums text-slate-900">{{ m.shared_reference }}</strong>
+                </li>
+              </ul>
+            </div>
+            {% if m.delta_prev is not none %}
+            <div class="rounded-xl bg-slate-50 px-3 py-2 text-center ring-1 ring-slate-100 sm:min-w-[5.5rem]">
+              <p class="text-[10px] font-semibold uppercase tracking-wide text-slate-500">前月比</p>
+              <p class="text-sm font-bold {{ m.delta_color_class }}">{{ m.delta_prev }}</p>
+            </div>
+            {% endif %}
+          </div>
+        </article>
+        {% endfor %}
+
+        <p class="rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-500 ring-1 ring-slate-100">
+          個別トピックの全文履歴が必要な場合は、別ビューで検索・フィルタ（月・優先度・共有ステータス）を用意すると一覧が膨らみすぎずに済みます。
+        </p>
+      </div>
+    </section>
+
+    <footer class="mt-10 text-center font-jp text-xs text-slate-400">
+      自動生成ブリーフ · {{ date_iso }} · メール配信時は Web 表示リンクやインライン CSS の利用をご検討ください。
+    </footer>
+  </div>
+</body>
+</html>

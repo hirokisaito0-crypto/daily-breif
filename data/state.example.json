@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "dates": {
+    "2026-04-20": [
+      {
+        "topic_index": 1,
+        "priority": "immediate",
+        "title": "サンプル：当局のドラフト公開",
+        "summary": "（例）要約テキスト。",
+        "source_name": "FCA",
+        "source_url": "https://www.fca.org.uk/news",
+        "published_date": "2026-04-19",
+        "background": "（例）背景。",
+        "priority_reason": "（例）優先度の理由。",
+        "client_share": "judgment",
+        "share_record": "pending",
+        "internal_memo": ""
+      }
+    ],
+    "2026-04-15": [
+      {
+        "topic_index": 1,
+        "priority": "review",
+        "title": "サンプル：共有済みトピック",
+        "summary": "（例）",
+        "source_name": "ECB",
+        "source_url": "https://www.bankingsupervision.europa.eu/",
+        "published_date": "2026-04-14",
+        "background": "",
+        "priority_reason": "",
+        "client_share": "recommended",
+        "share_record": "done_shared",
+        "internal_memo": ""
+      }
+    ]
+  }
+}

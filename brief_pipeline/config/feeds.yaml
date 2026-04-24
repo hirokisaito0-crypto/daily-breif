@@ -1,0 +1,35 @@
+# 1次情報中心の RSS / Atom ホワイトリスト（追加・削除はここだけ触るとよい）
+# title: 表示名（出典名のヒントに使う）  url: フィードURL
+
+feeds:
+  - id: fca_news
+    title: 金融行為規制当局（FCA）
+    url: https://www.fca.org.uk/news/rss
+
+  - id: boe_news
+    title: イングランド銀行（BoE）／PRA ニュース
+    url: https://www.bankofengland.co.uk/rss/news
+
+  - id: ecb_supervision
+    title: 欧州中央銀行（ECB）銀行監督
+    url: https://www.bankingsupervision.europa.eu/press/rss
+
+  - id: esma_news
+    title: ESMA
+    url: https://www.esma.europa.eu/rss
+
+  - id: eba_news
+    title: EBA
+    url: https://www.eba.europa.eu/rss
+
+  - id: fsa_jp
+    title: 金融庁（日本）
+    url: https://www.fsa.go.jp/rss/index.xml
+
+ingest:
+  # 収集対象とする各アイテムの最大経過時間（時間）
+  max_item_age_hours: 72
+  # フィード全体の取得タイムアウト（秒）
+  request_timeout_seconds: 25
+  # 1フィードあたり取り込む最大件数
+  max_entries_per_feed: 30
