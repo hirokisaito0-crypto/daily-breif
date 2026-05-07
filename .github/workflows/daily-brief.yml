@@ -10,10 +10,14 @@ on:
 
 permissions:
   contents: read
+  pages: write
+  id-token: write
 
 jobs:
   brief:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
     steps:
       - uses: actions/checkout@v4
 
@@ -69,3 +73,11 @@ jobs:
           name: brief-dist-${{ github.run_id }}
           path: dist
           retention-days: 14
+
+      - uses: actions/upload-pages-artifact@v3
+        if: steps.gate.outputs.skip == 'false'
+        with:
+          path: dist
+      - id: deployment
+        if: steps.gate.outputs.skip == 'false'
+        uses: actions/deploy-pages@v4
