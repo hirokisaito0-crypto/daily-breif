@@ -12,19 +12,23 @@ feeds:
 
   - id: ecb_supervision
     title: 欧州中央銀行（ECB）銀行監督
-    url: https://www.bankingsupervision.europa.eu/press/rss
+    # ECB Banking Supervision RSS (press releases, speeches, interviews...)
+    url: https://www.bankingsupervision.europa.eu/rss/press.html
 
   - id: esma_news
     title: ESMA
-    url: https://www.esma.europa.eu/rss
+    # ESMA does not provide a stable RSS endpoint in some regions.
+    # Use the website/news page manually for now, or replace with a known RSS/Atom URL if available.
+    url: https://www.esma.europa.eu/press-news/esma-news
 
   - id: eba_news
     title: EBA
-    url: https://www.eba.europa.eu/rss
+    url: https://www.eba.europa.eu/rss.xml
 
   - id: fsa_jp
     title: 金融庁（日本）
-    url: https://www.fsa.go.jp/rss/index.xml
+    # 日本語新着（RSS2.0）
+    url: https://www.fsa.go.jp/fsaNewsList_rss2.xml
 
 ingest:
   # 収集対象とする各アイテムの最大経過時間（時間）

@@ -62,6 +62,7 @@ def call_llm(
         temperature=0.3,
     )
 
+    data = _normalize_llm_output(data)
     try:
         jsonschema.validate(instance=data, schema=schema)
         _assert_source_urls_from_candidates(data, items)
@@ -89,6 +90,7 @@ def call_llm(
             schema=schema,
             temperature=0.0,
         )
+        fixed = _normalize_llm_output(fixed)
         jsonschema.validate(instance=fixed, schema=schema)
         _assert_source_urls_from_candidates(fixed, items)
         return fixed
@@ -138,6 +140,50 @@ def _call_llm_once(
 
     content = resp.choices[0].message.content or "{}"
     return json.loads(content)
+
+
+def _normalize_llm_output(data: dict[str, Any]) -> dict[str, Any]:
+    """
+    LLM がスキーマと違うキー名を返す場合があるため、最小限の補正を行う。
+    - source_url の代わりに link を返すケース: link → source_url へ移す
+    - 必須フィールドの欠落: 空文字で埋める（MVP。意味が無い場合は空でよい）
+    """
+    if not isinstance(data, dict):
+        return {"brief_date": "", "topics": []}
+
+    topics = data.get("topics")
+    if not isinstance(topics, list):
+        data["topics"] = []
+        return data
+
+    required_defaults = {
+        "priority": "review",
+        "title": "",
+        "summary": "",
+        "source_name": "",
+        "source_url": "",
+        "published_date": "",
+        "background": "",
+        "priority_reason": "",
+        "client_share": "judgment",
+        "share_record": "pending",
+        "internal_memo": "",
+    }
+
+    normalized: list[dict[str, Any]] = []
+    for t in topics:
+        if not isinstance(t, dict):
+            continue
+        row = dict(required_defaults)
+        row.update(t)
+        # alias: link -> source_url
+        if (not row.get("source_url")) and row.get("link"):
+            row["source_url"] = row.get("link")
+        row.pop("link", None)
+        normalized.append(row)
+
+    data["topics"] = normalized[:3]
+    return data
 
 
 def _assert_source_urls_from_candidates(data: dict[str, Any], items: list[FeedItem]) -> None:
