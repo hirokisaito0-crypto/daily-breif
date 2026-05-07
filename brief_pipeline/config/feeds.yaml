@@ -15,11 +15,10 @@ feeds:
     # ECB Banking Supervision RSS (press releases, speeches, interviews...)
     url: https://www.bankingsupervision.europa.eu/rss/press.html
 
+  # ESMA 公式ページは HTML のことがあり RSS として取り込めないため、Google News で補う（検索語は編集可）
   - id: esma_news
-    title: ESMA
-    # ESMA does not provide a stable RSS endpoint in some regions.
-    # Use the website/news page manually for now, or replace with a known RSS/Atom URL if available.
-    url: https://www.esma.europa.eu/press-news/esma-news
+    title: ESMA関連（Google News）
+    url: https://news.google.com/rss/search?q=ESMA+European+securities+markets+authority&hl=en&gl=GB&ceid=GB:en
 
   - id: eba_news
     title: EBA
@@ -29,6 +28,22 @@ feeds:
     title: 金融庁（日本）
     # 日本語新着（RSS2.0）
     url: https://www.fsa.go.jp/fsaNewsList_rss2.xml
+
+  # --- Google News（検索語は必要に応じて変更。記事URLは news.google.com 経由になることがあります） ---
+  - id: gnews_uk_regulators
+    title: UK監督・市場ニュース（Google News）
+    url: https://news.google.com/rss/search?q=FCA+OR+PRA+OR+%22Financial+Conduct+Authority%22+OR+%22Prudential+Regulation+Authority%22+OR+%22Bank+of+England%22+OR+BoE+UK+banking+regulation+supervision+compliance+financial+services&hl=en-GB&gl=GB&ceid=GB:en
+
+  - id: gnews_eu_supervision
+    title: EU監督ニュース（Google News）
+    url: https://news.google.com/rss/search?q=EBA+OR+ESMA+OR+%22European+Banking+Authority%22+OR+%22European+Securities+and+Markets+Authority%22+OR+SSM+OR+%22single+supervisory+mechanism%22+OR+ECB+banking+supervision+European+banking+regulation&hl=en&gl=GB&ceid=GB:en
+
+  - id: gnews_jp_banks_uk_eu
+    title: 日系・ロンドン・欧州（Google News）
+    url: https://news.google.com/rss/search?q=MUFG+OR+Mizuho+OR+SMBC+OR+Nomura+OR+%22Japanese+bank%22+OR+%22Japanese+banks%22+OR+%22Japanese+financial+institution%22+AND+%28London+OR+UK+OR+%22United+Kingdom%22+OR+EU+OR+Europe+banking+regulation+wholesale+banking%29&hl=en&gl=GB&ceid=GB:en
+
+  # Big4 等は地域別に RSS が異なることが多いです。公式サイトの RSS / Subscribe を確認し、XML が返る URL をこの一覧に id と url で追加してください。
+  # 例（Deloitte）: https://blogs.deloitte.co.uk/ などでチャネルごとの RSS を選び、取れた URL を自分で足す形が確実です。
 
 ingest:
   # 収集対象とする各アイテムの最大経過時間（時間）
