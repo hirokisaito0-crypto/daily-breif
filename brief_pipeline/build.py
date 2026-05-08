@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+import shutil
 from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -37,6 +38,15 @@ LLM_MAX_CANDIDATES = 25
 def _brief_date_london(now: datetime | None = None) -> str:
     now = now or datetime.now(ZoneInfo("Europe/London"))
     return now.date().isoformat()
+
+
+def _copy_static(repo_root: Path, out_dir: Path) -> None:
+    static_dir = repo_root / "static"
+    if not static_dir.is_dir():
+        return
+    for src in static_dir.iterdir():
+        if src.is_file():
+            shutil.copy2(src, out_dir / src.name)
 
 
 def _write_outputs(html: str, brief_date: str, out_dir: Path) -> None:
@@ -122,6 +132,7 @@ def run(
     }
     html = render_html(repo_root=REPO_ROOT, context=ctx)
     _write_outputs(html, brief_date, out_dir)
+    _copy_static(REPO_ROOT, out_dir)
     log.info("wrote %s and archive for %s", out_dir / "index.html", brief_date)
 
     if not mock and items:
