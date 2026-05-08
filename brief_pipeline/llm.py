@@ -9,6 +9,7 @@ import jsonschema
 from openai import OpenAI
 
 from brief_pipeline.ingest import FeedItem
+from brief_pipeline.glossary import build_terms_explained, extract_glossary_keys
 
 log = logging.getLogger(__name__)
 
@@ -221,6 +222,42 @@ def _normalize_llm_output(data: dict[str, Any]) -> dict[str, Any]:
         if (not row.get("source_url")) and row.get("link"):
             row["source_url"] = row.get("link")
         row.pop("link", None)
+
+        # Ensure correct types; also fill missing glossary deterministically.
+        fb = row.get("facts_bullets")
+        if isinstance(fb, str) and fb.strip():
+            row["facts_bullets"] = [fb.strip()]
+        elif not isinstance(fb, list):
+            row["facts_bullets"] = []
+
+        te = row.get("terms_explained")
+        if not isinstance(te, list):
+            row["terms_explained"] = []
+
+        # If the model didn't provide enough glossary entries, supplement from a fixed dictionary.
+        # This runs before schema validation so strict minItems is easier to satisfy.
+        if len(row["terms_explained"]) < 2:
+            keys = extract_glossary_keys(
+                [
+                    str(row.get("title") or ""),
+                    str(row.get("summary") or ""),
+                    str(row.get("background") or ""),
+                    " ".join([str(x) for x in (row.get("facts_bullets") or [])]),
+                ]
+            )
+            supplement = build_terms_explained(keys, limit=5)
+            if supplement:
+                existing_terms = {
+                    str(x.get("term"))
+                    for x in (row.get("terms_explained") or [])
+                    if isinstance(x, dict)
+                }
+                for s in supplement:
+                    if s.get("term") in existing_terms:
+                        continue
+                    row["terms_explained"].append(s)
+                    if len(row["terms_explained"]) >= 5:
+                        break
         normalized.append(row)
 
     data["topics"] = normalized[:3]

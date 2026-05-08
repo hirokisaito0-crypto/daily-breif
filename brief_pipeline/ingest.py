@@ -15,6 +15,23 @@ import yaml
 
 log = logging.getLogger(__name__)
 
+def _normalize_title_for_dedupe(title: str) -> str:
+    import re
+
+    t = (title or "").lower().strip()
+    t = re.sub(r"\s+", " ", t)
+    # keep alnum + spaces; drop punctuation that differs across sources
+    t = re.sub(r"[^0-9a-z\u00c0-\u024f\u0370-\u03ff\u0400-\u04ff\u3040-\u30ff\u4e00-\u9fff ]+", "", t)
+    return t.strip()
+
+
+def _title_similarity(a: str, b: str) -> float:
+    from difflib import SequenceMatcher
+
+    if not a or not b:
+        return 0.0
+    return SequenceMatcher(None, a, b).ratio()
+
 
 @dataclass(frozen=True)
 class FeedItem:
@@ -162,6 +179,20 @@ def fetch_feed_items(
     for it in out:
         if it.link in seen:
             continue
+        # Additional dedupe: near-identical titles across sources (common with Google News).
+        # Keep the newest item (we iterate newest-first).
+        nt = _normalize_title_for_dedupe(it.title)
+        if nt:
+            too_similar = False
+            for prev in deduped[:40]:
+                pt = _normalize_title_for_dedupe(prev.title)
+                if not pt:
+                    continue
+                if nt == pt or _title_similarity(nt, pt) >= 0.92:
+                    too_similar = True
+                    break
+            if too_similar:
+                continue
         seen.add(it.link)
         deduped.append(it)
     return deduped
