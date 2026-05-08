@@ -53,14 +53,19 @@
         {% if topics %}
         <ul class="space-y-2 font-jp" aria-label="優先度別タイトル一覧">
           {% for topic in topics %}
-          <li class="flex flex-col gap-2 rounded-xl bg-white p-3 shadow-sm ring-1 {{ topic.summary_row_ring }} sm:flex-row sm:items-center sm:gap-3">
+          <li class="flex flex-col gap-2 rounded-xl bg-white p-3 shadow-sm ring-1 {{ topic.summary_row_ring }} sm:flex-row sm:items-start sm:gap-3">
             <span class="inline-flex shrink-0 items-center gap-2 self-start rounded-full px-2.5 py-1 text-xs font-bold ring-1 {{ topic.summary_badge_bg }} {{ topic.summary_badge_text }} {{ topic.summary_badge_ring }}">
               <span class="h-2 w-2 rounded-full {{ topic.summary_dot }}" aria-hidden="true"></span>
               {{ topic.priority_label }} {{ topic.priority_index }}
             </span>
-            <p class="min-w-0 flex-1 text-sm font-semibold leading-snug text-slate-800">
-              {{ topic.title }}
-            </p>
+            <div class="min-w-0 flex-1 space-y-1.5">
+              <p class="text-sm font-semibold leading-snug text-slate-800">
+                {{ topic.title }}
+              </p>
+              <p class="font-jp text-xs leading-relaxed text-slate-600">
+                {{ topic.summary }}
+              </p>
+            </div>
             <fieldset class="shrink-0 border-0 p-0 sm:max-w-[13rem]">
               <legend class="sr-only">共有の記録（一覧）</legend>
               <p class="mb-1 text-[10px] font-semibold text-slate-500">共有の記録</p>
@@ -130,11 +135,38 @@
                   </div>
                 </fieldset>
               </div>
-              <dl class="mt-4 space-y-3 text-sm">
+              <dl class="mt-4 space-y-4 text-sm">
                 <div>
-                  <dt class="font-jp text-xs font-semibold uppercase tracking-wide text-slate-500">要約</dt>
-                  <dd class="font-jp mt-1 text-slate-700">{{ topic.summary }}</dd>
+                  <dt class="font-jp text-xs font-semibold uppercase tracking-wide text-slate-500">ぱっと理解（リード）</dt>
+                  <dd class="font-jp mt-1.5 leading-relaxed text-slate-800">{{ topic.summary }}</dd>
                 </div>
+                {% if topic.facts_bullets %}
+                <div>
+                  <dt class="font-jp text-xs font-semibold uppercase tracking-wide text-slate-500">事実の整理（箇条書き）</dt>
+                  <dd class="mt-1.5">
+                    <ul class="font-jp list-disc space-y-2 pl-5 text-slate-700 leading-relaxed">
+                      {% for line in topic.facts_bullets %}
+                      <li>{{ line }}</li>
+                      {% endfor %}
+                    </ul>
+                  </dd>
+                </div>
+                {% endif %}
+                {% if topic.terms_explained %}
+                <div class="rounded-xl bg-sky-50/90 p-4 ring-1 ring-sky-100">
+                  <dt class="font-jp text-xs font-semibold uppercase tracking-wide text-sky-900">用語ミニ辞典（新卒・非専門向け）</dt>
+                  <dd class="mt-2">
+                    <dl class="font-jp space-y-3">
+                      {% for g in topic.terms_explained %}
+                      <div class="border-b border-sky-100 pb-3 last:border-b-0 last:pb-0">
+                        <dt class="font-semibold text-sky-950">{{ g.term }}</dt>
+                        <dd class="mt-1 text-sm leading-relaxed text-slate-700">{{ g.definition }}</dd>
+                      </div>
+                      {% endfor %}
+                    </dl>
+                  </dd>
+                </div>
+                {% endif %}
                 <div class="grid gap-4 sm:grid-cols-2">
                   <div>
                     <dt class="font-jp text-xs font-semibold uppercase tracking-wide text-slate-500">出典</dt>
@@ -149,8 +181,8 @@
                   </div>
                 </div>
                 <div>
-                  <dt class="font-jp text-xs font-semibold uppercase tracking-wide text-slate-500">背景</dt>
-                  <dd class="font-jp mt-1 text-slate-700">{{ topic.background }}</dd>
+                  <dt class="font-jp text-xs font-semibold uppercase tracking-wide text-slate-500">背景・なぜ論点か</dt>
+                  <dd class="font-jp mt-1 leading-relaxed text-slate-700">{{ topic.background }}</dd>
                 </div>
                 <div class="rounded-lg p-3 ring-1 {{ topic.reason_box_bg }} {{ topic.reason_box_ring }}">
                   <dt class="font-jp text-xs font-semibold uppercase tracking-wide {{ topic.reason_dt }}">優先度の理由</dt>

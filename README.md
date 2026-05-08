@@ -38,14 +38,14 @@ pip install -r requirements.txt
 | [`templates/daily-brief.j2.html`](templates/daily-brief.j2.html) | 日次 HTML テンプレート |
 | [`data/state.example.json`](data/state.example.json) | `state.json` の例（バックログ／月次用） |
 
-ドキュメント: [docs/feeds-ingest.md](docs/feeds-ingest.md) · [docs/llm-mapping.md](docs/llm-mapping.md) · [docs/schedule-london.md](docs/schedule-london.md) · [docs/cloudflare-pages-access.md](docs/cloudflare-pages-access.md) · [docs/phase2-kv-api.md](docs/phase2-kv-api.md)
+ドキュメント: [docs/feeds-ingest.md](docs/feeds-ingest.md) · [docs/llm-mapping.md](docs/llm-mapping.md) · [docs/schedule-london.md](docs/schedule-london.md) · [docs/operations.md](docs/operations.md) · [docs/cloudflare-pages-access.md](docs/cloudflare-pages-access.md) · [docs/phase2-kv-api.md](docs/phase2-kv-api.md)
 
 ## GitHub Actions
 
 | ワークフロー | 役割 |
 |--------------|------|
 | [`.github/workflows/pages.yml`](.github/workflows/pages.yml) | `main` / `master` への push で `pip install` → `build --mock` → **GitHub Pages** に `dist/` をデプロイ。`data/state.json` はブランチ単位でキャッシュ。 |
-| [`.github/workflows/daily-brief.yml`](.github/workflows/daily-brief.yml) | 毎日 UTC 6:00 / 7:00 の 2 本で起動し、**Europe/London が 7 時のときだけ**ビルド。`OPENAI_API_KEY` が無い場合は `--mock`。成果物は **Artifacts**（`dist/`）に 14 日保持。 |
+| [`.github/workflows/daily-brief.yml`](.github/workflows/daily-brief.yml) | 毎日 UTC 6:00 / 7:00 の 2 本で起動し、**Europe/London が 7 時のときだけ**ビルド。`OPENAI_API_KEY` が無い場合は `--mock`。**GitHub Pages** にも載せ、任意で **Cloudflare Pages**（Secrets: `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` / `CLOUDFLARE_PAGES_PROJECT_NAME`）。Artifacts にも `dist/` を 14 日保持。 |
 
 非公開 URL には GitHub Pages 単体では足りないことが多いです。**Cloudflare Pages + Access** などの手順は [docs/cloudflare-pages-access.md](docs/cloudflare-pages-access.md) を参照してください。
 

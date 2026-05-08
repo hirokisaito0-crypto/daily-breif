@@ -14,14 +14,21 @@ log = logging.getLogger(__name__)
 
 SYSTEM_PROMPT = """あなたは欧州・英国の金融監督・市場インフラに詳しいリサーチアシスタントです。
 読者はイギリスおよび欧州で事業する日系金融機関のコンプライアンス・リスク・オペレーション担当です。
+あわせて、**金融・規制に不慣れな新卒社会人**にも読める説明を必ず足してください。
 
 与えられた RSS 候補（candidate_items）だけから、当日ブリーフに載せるトピックを最大3件選びます。
 各トピックの source_url は候補の link と完全一致している必要があります（別URLにしない）。
 判断に自信がない場合は priority を reference にし、summary と priority_reason では断定を避け「可能性」「場合がある」等で書きます。
 出力はユーザーが指定する JSON スキーマに厳密に従ってください。brief_date はリクエストの値をそのまま使ってください。
 
+【読みやすさの構成（各トピックで必ず守る）】
+1. summary … **ぱっと見のリード**（2〜4文）。「誰が／いつ／何を公表・実施したか」の骨子だけ。抽象的な感想やバズワードだけにしない。
+2. facts_bullets … **事実を厚く**（3〜6個の短い文）。候補テキストから取れる具体を列挙する（主体・日付・地域・数値・期限・対象業者など）。推測は「〜の可能性」「〜と報じられています」と明示し、事実と混ぜない。
+3. terms_explained … **専門用語ミニ辞典**（2〜5件）。その記事で実際に使う語だけ選び、term に語／略称、definition に新卒向けの一言説明（です・ます調）。FCA・EBA・制裁・ストレステスト・レジリエンス等、必要なら必ず入れる。
+4. background … **なぜ今それが業界・日系拠点の論点になりうか**の文脈（summary／facts と重複させない。補足に徹する）。
+
 【言語】RSS が英語でも、画面上に見える本文はすべて日本語にしてください。
-- topics[] の title / summary / background / priority_reason / internal_memo は日本語（です・ます調または敬体の短文）。
+- topics[] の title / summary / facts_bullets[] / terms_explained[].definition / background / priority_reason / internal_memo は日本語（です・ます調）。
 - source_name は日本語の機関名＋括弧で英語略称でもよい（例：金融行為規制当局（FCA））。
 - 固有名詞・法案名・制度名は必要に応じて英語表記を括弧で補足してよいが、文章本体は日本語。
 - candidate の英文タイトルや概要をそのままコピーしない。意味を読み取り日本語で書き直す。
@@ -64,7 +71,9 @@ def build_user_message(brief_date: str, items: list[FeedItem]) -> str:
         "instructions": (
             "topics は最大3件。優先度順に並べること（immediate → review → reference）。"
             "該当する重要トピックが無ければ topics は空配列でもよい。"
-            "各トピックの title, summary, background, priority_reason, internal_memo, source_name はすべて日本語で記述すること。"
+            "各トピックの title, summary, facts_bullets, terms_explained, background, priority_reason, internal_memo, source_name はすべて日本語で記述すること。"
+            "facts_bullets は必ず3件以上：候補から取れる具体的事実を列挙すること。"
+            "terms_explained は必ず2件以上：新卒向けの用語解説を付けること。"
             "候補が英語でも翻訳・要約して日本語にすること。"
             "選定はシステムプロンプトのルーブリックに従い、日系金融機関の UK・欧州拠点に有用かで優先度を付けること。"
         ),
@@ -105,6 +114,7 @@ def call_llm(
                 SYSTEM_PROMPT
                 + "\nあなたの直前の出力がスキーマに一致しませんでした。"
                 "候補RSSのlink以外のURLは使わず、必ずスキーマ通りのフィールド名・型で出力し直してください。"
+                "facts_bullets は3件以上、terms_explained は2件以上必須です。"
                 "title / summary 等の本文は引き続き日本語のまま（英訳に戻さない）。"
             ),
             user_msg=json.dumps(
@@ -189,6 +199,8 @@ def _normalize_llm_output(data: dict[str, Any]) -> dict[str, Any]:
         "priority": "review",
         "title": "",
         "summary": "",
+        "facts_bullets": [],
+        "terms_explained": [],
         "source_name": "",
         "source_url": "",
         "published_date": "",

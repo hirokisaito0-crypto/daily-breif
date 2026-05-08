@@ -26,6 +26,8 @@
         "priority",
         "title",
         "summary",
+        "facts_bullets",
+        "terms_explained",
         "source_name",
         "source_url",
         "published_date",
@@ -42,7 +44,41 @@
           "description": "immediate=即共有, review=要確認, reference=参考"
         },
         "title": { "type": "string", "minLength": 1 },
-        "summary": { "type": "string", "minLength": 1 },
+        "summary": {
+          "type": "string",
+          "minLength": 1,
+          "description": "冒頭リード。誰が何をしたかが30秒でわかる2〜4文（です・ます調）。評論より事実の骨子。"
+        },
+        "facts_bullets": {
+          "type": "array",
+          "description": "候補RSSに基づく具体的事実を3〜6行。誰・いつ・何を・数値・期限など。推測は明示。",
+          "minItems": 3,
+          "maxItems": 6,
+          "items": { "type": "string", "minLength": 8 }
+        },
+        "terms_explained": {
+          "type": "array",
+          "description": "本文で使った略語・制度・当局を新卒向けに一言解説。2〜5件。",
+          "minItems": 2,
+          "maxItems": 5,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["term", "definition"],
+            "properties": {
+              "term": {
+                "type": "string",
+                "minLength": 1,
+                "description": "用語（略称も可）"
+              },
+              "definition": {
+                "type": "string",
+                "minLength": 8,
+                "description": "新卒向けの短い説明（です・ます調）"
+              }
+            }
+          }
+        },
         "source_name": { "type": "string", "minLength": 1 },
         "source_url": { "type": "string", "minLength": 4 },
         "published_date": {

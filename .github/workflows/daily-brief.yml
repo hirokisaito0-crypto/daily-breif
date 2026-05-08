@@ -81,3 +81,17 @@ jobs:
       - id: deployment
         if: steps.gate.outputs.skip == 'false'
         uses: actions/deploy-pages@v4
+
+      # Cloudflare Pages へも載せる（Secrets を3つ入れたときだけ動く。GitHub Pages と併用可）
+      - name: Deploy to Cloudflare Pages (optional)
+        if: steps.gate.outputs.skip == 'false'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_PAGES_PROJECT_NAME: ${{ secrets.CLOUDFLARE_PAGES_PROJECT_NAME }}
+        run: |
+          if [ -z "${CLOUDFLARE_API_TOKEN:-}" ] || [ -z "${CLOUDFLARE_ACCOUNT_ID:-}" ] || [ -z "${CLOUDFLARE_PAGES_PROJECT_NAME:-}" ]; then
+            echo "Cloudflare の Secrets が未設定のためスキップします（Pages のみ更新）。"
+            exit 0
+          fi
+          npx --yes wrangler@3 pages deploy dist --project-name="$CLOUDFLARE_PAGES_PROJECT_NAME"

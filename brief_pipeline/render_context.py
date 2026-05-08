@@ -120,6 +120,8 @@ def enrich_topics(topics: list[dict[str, Any]]) -> list[dict[str, Any]]:
             csl, csc, csn = "要判断", "bg-amber-100 text-amber-950 ring-amber-200", ""
 
         row = dict(raw)
+        row.setdefault("facts_bullets", [])
+        row.setdefault("terms_explained", [])
         row["topic_index"] = i
         row["priority_label"] = PRIORITY_LABEL_JA.get(pr, "要確認")
         row["priority_index"] = tier_count[pr]
