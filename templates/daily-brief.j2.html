@@ -19,7 +19,7 @@
   </script>
 </head>
 <body class="min-h-screen bg-slate-100 font-sans text-slate-900 antialiased">
-  <div class="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8">
+  <div id="top" class="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
     <header class="mb-10 border-b border-slate-200 pb-8">
       <p class="font-jp text-xs font-medium tracking-wide text-slate-500">UK・欧州 · 日系金融機関向け</p>
       <h1 class="mt-2 font-jp text-2xl font-bold leading-tight text-slate-900 sm:text-3xl">
@@ -59,10 +59,13 @@
               {{ topic.priority_label }} {{ topic.priority_index }}
             </span>
             <div class="min-w-0 flex-1 space-y-1.5">
-              <p class="text-sm font-semibold leading-snug text-slate-800">
+              <a
+                href="#topic-{{ topic.topic_index }}"
+                class="block text-sm font-semibold leading-snug text-slate-900 underline decoration-slate-200 underline-offset-2 hover:decoration-slate-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+              >
                 {{ topic.title }}
-              </p>
-              <p class="font-jp text-xs leading-relaxed text-slate-600">
+              </a>
+              <p class="font-jp max-w-prose text-xs leading-relaxed text-slate-600">
                 {{ topic.summary }}
               </p>
             </div>
@@ -116,7 +119,7 @@
                 <h2 class="font-jp flex-1 text-lg font-bold text-slate-900 sm:text-xl">
                   {{ topic.title }}
                 </h2>
-                <fieldset class="shrink-0 rounded-xl border border-slate-200 bg-slate-50/80 px-3 py-2.5 sm:min-w-[12rem]">
+                <fieldset class="shrink-0 rounded-xl border border-slate-100 bg-slate-50 px-2.5 py-2 sm:min-w-[12rem]">
                   <legend class="font-jp px-0.5 text-xs font-semibold text-slate-600">共有の記録</legend>
                   <p class="font-jp mb-2 text-[11px] leading-snug text-slate-500">いずれか1つ（本番では一覧と同期推奨）</p>
                   <div class="font-jp flex flex-col gap-2 text-sm text-slate-800">
@@ -135,16 +138,16 @@
                   </div>
                 </fieldset>
               </div>
-              <dl class="mt-4 space-y-4 text-sm">
+              <dl class="mt-4 space-y-5 text-[15px] sm:text-base">
                 <div>
-                  <dt class="font-jp text-xs font-semibold uppercase tracking-wide text-slate-500">ぱっと理解（リード）</dt>
-                  <dd class="font-jp mt-1.5 leading-relaxed text-slate-800">{{ topic.summary }}</dd>
+                  <dt class="font-jp text-xs font-semibold tracking-normal text-slate-500">ぱっと理解（リード）</dt>
+                  <dd class="font-jp mt-1.5 max-w-prose text-base sm:text-lg font-medium leading-relaxed text-slate-900">{{ topic.summary }}</dd>
                 </div>
                 {% if topic.facts_bullets %}
                 <div>
-                  <dt class="font-jp text-xs font-semibold uppercase tracking-wide text-slate-500">事実の整理（箇条書き）</dt>
+                  <dt class="font-jp text-xs font-semibold tracking-normal text-slate-500">事実の整理（箇条書き）</dt>
                   <dd class="mt-1.5">
-                    <ul class="font-jp list-disc space-y-2 pl-5 text-slate-700 leading-relaxed">
+                    <ul class="font-jp list-disc space-y-1.5 pl-5 max-w-prose text-slate-700 leading-relaxed marker:text-slate-400">
                       {% for line in topic.facts_bullets %}
                       <li>{{ line }}</li>
                       {% endfor %}
@@ -153,10 +156,12 @@
                 </div>
                 {% endif %}
                 {% if topic.terms_explained %}
-                <div class="rounded-xl bg-sky-50/90 p-4 ring-1 ring-sky-100">
-                  <dt class="font-jp text-xs font-semibold uppercase tracking-wide text-sky-900">用語ミニ辞典（新卒・非専門向け）</dt>
-                  <dd class="mt-2">
-                    <dl class="font-jp space-y-3">
+                <details class="rounded-xl border border-sky-100 bg-sky-50/80 p-3 sm:p-4">
+                  <summary class="font-jp cursor-pointer list-none text-xs font-semibold tracking-normal text-sky-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400">
+                    用語ミニ辞典（新卒・非専門向け）<span class="ml-1 text-slate-500">（{{ topic.terms_explained | length }}）</span>
+                  </summary>
+                  <div class="mt-3">
+                    <dl class="font-jp space-y-3 max-w-prose">
                       {% for g in topic.terms_explained %}
                       <div class="border-b border-sky-100 pb-3 last:border-b-0 last:pb-0">
                         <dt class="font-semibold text-sky-950">{{ g.term }}</dt>
@@ -164,32 +169,34 @@
                       </div>
                       {% endfor %}
                     </dl>
-                  </dd>
-                </div>
+                  </div>
+                </details>
                 {% endif %}
                 <div class="grid gap-4 sm:grid-cols-2">
                   <div>
-                    <dt class="font-jp text-xs font-semibold uppercase tracking-wide text-slate-500">出典</dt>
+                    <dt class="font-jp text-xs font-semibold tracking-normal text-slate-500">出典</dt>
                     <dd class="mt-1">
                       <span class="font-jp font-medium text-slate-800">{{ topic.source_name }}</span>
                       <a href="{{ topic.source_url }}" class="mt-1 block truncate text-sm font-medium text-blue-700 underline decoration-blue-300 underline-offset-2 hover:text-blue-900">{{ topic.source_url }}</a>
                     </dd>
                   </div>
                   <div>
-                    <dt class="font-jp text-xs font-semibold uppercase tracking-wide text-slate-500">公表日</dt>
+                    <dt class="font-jp text-xs font-semibold tracking-normal text-slate-500">公表日</dt>
                     <dd class="mt-1 font-medium text-slate-800">{{ topic.published_date }}</dd>
                   </div>
                 </div>
-                <div>
-                  <dt class="font-jp text-xs font-semibold uppercase tracking-wide text-slate-500">背景・なぜ論点か</dt>
-                  <dd class="font-jp mt-1 leading-relaxed text-slate-700">{{ topic.background }}</dd>
-                </div>
+                <details class="rounded-xl bg-slate-50 px-3 py-2.5 ring-1 ring-slate-100">
+                  <summary class="font-jp cursor-pointer list-none text-xs font-semibold tracking-normal text-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400">
+                    背景・なぜ論点か
+                  </summary>
+                  <div class="mt-2 font-jp max-w-prose text-sm leading-relaxed text-slate-700">{{ topic.background }}</div>
+                </details>
                 <div class="rounded-lg p-3 ring-1 {{ topic.reason_box_bg }} {{ topic.reason_box_ring }}">
-                  <dt class="font-jp text-xs font-semibold uppercase tracking-wide {{ topic.reason_dt }}">優先度の理由</dt>
+                  <dt class="font-jp text-xs font-semibold tracking-normal {{ topic.reason_dt }}">優先度の理由</dt>
                   <dd class="font-jp mt-1 text-sm {{ topic.reason_dd }}">{{ topic.priority_reason }}</dd>
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
-                  <dt class="font-jp w-full text-xs font-semibold uppercase tracking-wide text-slate-500">クライアント共有</dt>
+                  <dt class="font-jp w-full text-xs font-semibold tracking-normal text-slate-500">クライアント共有</dt>
                   <dd class="mt-1 w-full">
                     <span class="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-bold ring-1 {{ topic.client_share_classes }}">{{ topic.client_share_label }}</span>
                     {% if topic.client_share_note %}
@@ -199,10 +206,15 @@
                 </div>
                 {% if topic.internal_memo %}
                 <div class="rounded-lg border border-dashed border-slate-200 bg-slate-50/80 p-3">
-                  <dt class="font-jp text-xs font-semibold uppercase tracking-wide text-slate-500">社内メモ</dt>
-                  <dd class="font-jp mt-1 text-sm text-slate-600">{{ topic.internal_memo }}</dd>
+                  <dt class="font-jp text-xs font-semibold tracking-normal text-slate-500">社内メモ</dt>
+                  <dd class="font-jp mt-1 max-w-prose text-sm text-slate-600">{{ topic.internal_memo }}</dd>
                 </div>
                 {% endif %}
+                <div class="pt-1">
+                  <a href="#top" class="font-jp inline-flex items-center text-xs font-semibold text-slate-500 underline decoration-slate-200 underline-offset-2 hover:text-slate-700 hover:decoration-slate-300">
+                    ↑ 一覧へ戻る
+                  </a>
+                </div>
               </dl>
             </div>
           </div>

@@ -31,6 +31,7 @@ log = logging.getLogger("brief_pipeline.build")
 REPO_ROOT = Path(__file__).resolve().parents[1]
 FEEDS_PATH = REPO_ROOT / "brief_pipeline" / "config" / "feeds.yaml"
 FIXTURE_PATH = REPO_ROOT / "brief_pipeline" / "fixtures" / "mock_llm_output.json"
+LLM_MAX_CANDIDATES = 25
 
 
 def _brief_date_london(now: datetime | None = None) -> str:
@@ -77,6 +78,9 @@ def run(
             log.warning("no RSS items; writing empty brief")
             llm_out = {"brief_date": brief_date, "topics": []}
         else:
+            if len(items) > LLM_MAX_CANDIDATES:
+                log.info("capping candidates %s -> %s for LLM", len(items), LLM_MAX_CANDIDATES)
+                items = items[:LLM_MAX_CANDIDATES]
             try:
                 llm_out = call_llm(
                     brief_date=brief_date,
@@ -85,8 +89,8 @@ def run(
                     model=model,
                 )
             except Exception as e:
-                log.exception("LLM failed: %s", e)
-                return 1
+                log.exception("LLM failed; falling back to empty brief: %s", e)
+                llm_out = {"brief_date": brief_date, "topics": []}
 
     llm_out["brief_date"] = brief_date
     jsonschema.validate(instance=llm_out, schema=schema)

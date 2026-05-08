@@ -38,13 +38,17 @@ jobs:
               skip = "false" if now.hour == 7 else "true"
           with open(gh_out, "a", encoding="utf-8") as f:
               f.write(f"skip={skip}\n")
+              f.write(f"brief_date={datetime.now(ZoneInfo('Europe/London')).date().isoformat()}\n")
           PY
 
-      - uses: actions/cache@v4
+      - name: Restore state cache
+        uses: actions/cache/restore@v4
         if: steps.gate.outputs.skip == 'false'
         with:
           path: data/state.json
-          key: brief-state-${{ github.ref_name }}
+          key: brief-state-${{ github.ref_name }}-${{ steps.gate.outputs.brief_date }}
+          restore-keys: |
+            brief-state-${{ github.ref_name }}-
 
       - uses: actions/setup-python@v5
         if: steps.gate.outputs.skip == 'false'
@@ -81,6 +85,13 @@ jobs:
       - id: deployment
         if: steps.gate.outputs.skip == 'false'
         uses: actions/deploy-pages@v4
+
+      - name: Save state cache
+        uses: actions/cache/save@v4
+        if: steps.gate.outputs.skip == 'false'
+        with:
+          path: data/state.json
+          key: brief-state-${{ github.ref_name }}-${{ steps.gate.outputs.brief_date }}
 
       # Cloudflare Pages へも載せる（Secrets を3つ入れたときだけ動く。GitHub Pages と併用可）
       - name: Deploy to Cloudflare Pages (optional)

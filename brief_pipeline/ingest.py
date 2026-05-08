@@ -34,7 +34,7 @@ class FeedItem:
             "feed_title": self.feed_title,
             "title": self.title,
             "link": self.link,
-            "summary": (self.summary or "")[:800],
+            "summary": (self.summary or "")[:500],
             "published": pub,
         }
 
@@ -126,6 +126,10 @@ def fetch_feed_items(
                 title = _strip_html(str(entry.get("title") or "")).strip() or "(無題)"
                 link = str(entry.get("link") or entry.get("id") or "").strip()
                 if not link:
+                    continue
+                scheme = (urlparse(link).scheme or "").lower()
+                if scheme and scheme not in ("http", "https"):
+                    log.warning("skip non-http(s) link in %s: %s", fid or ftitle, link)
                     continue
                 summary_raw = entry.get("summary") or entry.get("description") or ""
                 summary = _strip_html(str(summary_raw))[:1200]
